@@ -1,0 +1,19 @@
+@layer theme, base, antd, components, utilities;
+
+@import 'tailwindcss';
+
+@theme {
+  --color-primary: #123549;
+}
+
+.form-input.has-error {
+  border-color: #f5222d;
+}
+
+.form-input.has-error .ant-select-selector {
+  border-color: #f5222d;
+}
+
+.input-error-feedback {
+  color: #f5222d;
+}

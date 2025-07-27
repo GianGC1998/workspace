@@ -1,0 +1,145 @@
+// Tipos para las traducciones
+export type TranslationKeys =
+  // Common
+  | 'common.loading'
+  | 'common.error'
+  | 'common.success'
+  | 'common.cancel'
+  | 'common.save'
+  | 'common.edit'
+  | 'common.delete'
+  | 'common.create'
+  | 'common.update'
+  | 'common.search'
+  | 'common.filter'
+  | 'common.clear'
+  | 'common.back'
+  | 'common.next'
+  | 'common.previous'
+  | 'common.close'
+  | 'common.confirm'
+  | 'common.yes'
+  | 'common.no'
+
+  // Auth
+  | 'auth.login'
+  | 'auth.logout'
+  | 'auth.email'
+  | 'auth.password'
+  | 'auth.emailPlaceholder'
+  | 'auth.passwordPlaceholder'
+  | 'auth.loginError'
+  | 'auth.sessionExpired'
+
+  // Validation
+  | 'validation.required'
+  | 'validation.email'
+  | 'validation.minLength'
+  | 'validation.maxLength'
+  | 'validation.passwordMinLength'
+  | 'validation.passwordMatch'
+  | 'validation.invalidFormat'
+  | 'validation.generalError'
+
+  // Navigation
+  | 'navigation.dashboard'
+  | 'navigation.categories'
+  | 'navigation.items'
+  | 'navigation.providers'
+  | 'navigation.reports'
+  | 'navigation.settings'
+  | 'navigation.profile'
+
+  // Dashboard
+  | 'dashboard.title'
+  | 'dashboard.totalSales'
+  | 'dashboard.totalItems'
+  | 'dashboard.totalCategories'
+  | 'dashboard.recentActivity'
+  | 'dashboard.salesChart'
+  | 'dashboard.salesByStore'
+
+  // Categories
+  | 'categories.title'
+  | 'categories.createCategory'
+  | 'categories.editCategory'
+  | 'categories.deleteCategory'
+  | 'categories.categoryName'
+  | 'categories.categoryDescription'
+  | 'categories.categoryCreated'
+  | 'categories.categoryUpdated'
+  | 'categories.categoryDeleted'
+  | 'categories.confirmDeleteCategory'
+  | 'categories.noCategories'
+
+  // Items
+  | 'items.title'
+  | 'items.createItem'
+  | 'items.editItem'
+  | 'items.deleteItem'
+  | 'items.itemName'
+  | 'items.itemDescription'
+  | 'items.itemCode'
+  | 'items.itemType'
+  | 'items.itemCategory'
+  | 'items.itemCreated'
+  | 'items.itemUpdated'
+  | 'items.itemDeleted'
+  | 'items.confirmDeleteItem'
+  | 'items.noItems'
+  | 'items.itemNameExists'
+  | 'items.itemNotFound'
+  | 'items.itemDeactivated'
+
+  // Providers
+  | 'providers.title'
+  | 'providers.createProvider'
+  | 'providers.editProvider'
+  | 'providers.deleteProvider'
+  | 'providers.providerName'
+  | 'providers.providerEmail'
+  | 'providers.providerPhone'
+  | 'providers.providerAddress'
+  | 'providers.providerCreated'
+  | 'providers.providerUpdated'
+  | 'providers.providerDeleted'
+  | 'providers.confirmDeleteProvider'
+  | 'providers.noProviders'
+
+  // Reports
+  | 'reports.title'
+  | 'reports.salesReport'
+  | 'reports.inventoryReport'
+  | 'reports.providerReport'
+  | 'reports.generateReport'
+  | 'reports.exportToExcel'
+  | 'reports.exportToPDF'
+  | 'reports.dateRange'
+  | 'reports.startDate'
+  | 'reports.endDate'
+
+  // Table
+  | 'table.noData'
+  | 'table.loading'
+  | 'table.actions'
+  | 'table.selectAll'
+  | 'table.deselectAll'
+  | 'table.rowsPerPage'
+  | 'table.of'
+  | 'table.showing'
+  | 'table.entries'
+
+  // Form
+  | 'form.selectPlaceholder'
+  | 'form.searchPlaceholder'
+  | 'form.datePlaceholder'
+  | 'form.timePlaceholder'
+  | 'form.uploadPlaceholder'
+  | 'form.maxFileSize'
+  | 'form.allowedFileTypes'
+
+  // Messages
+  | 'messages.GENERAL_ERROR'
+  | 'messages.MANDATORY_FIELD';
+
+export type Language = 'es' | 'en';
