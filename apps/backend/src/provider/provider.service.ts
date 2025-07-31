@@ -4,19 +4,28 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
-import { IsNull, Repository } from 'typeorm';
+import { In, IsNull, Repository } from 'typeorm';
 import { getSkipAndTake } from '../common/dto/pagination.helper';
 import '../common/extensions/queryBuilder.extension';
-import { CreateUpdateProviderDto, GetProvidersQueryDto } from './provider.dto';
+import {
+  CreateUpdateProviderDto,
+  GetProvidersQueryDto,
+  AssignItemsToProviderDto,
+  UpdateProviderItemCostDto,
+} from './provider.dto';
 import { ProviderEntity } from './entities/provider.entity';
+import { ProviderItemEntity } from './entities/provider-item.entity';
 import { PROVIDER_REPOSITORY_KEY } from './provider.providers';
+import { PROVIDER_ITEM_REPOSITORY_KEY } from './provider.providers';
 import { getCodeByNumber } from '../common/helpers/code.helper';
 
 @Injectable()
 export class ProviderService {
   constructor(
     @Inject(PROVIDER_REPOSITORY_KEY)
-    private readonly providerRepository: Repository<ProviderEntity>
+    private readonly providerRepository: Repository<ProviderEntity>,
+    @Inject(PROVIDER_ITEM_REPOSITORY_KEY)
+    private readonly providerItemRepository: Repository<ProviderItemEntity>
   ) {}
 
   async findAll(query: GetProvidersQueryDto): Promise<{
@@ -121,5 +130,83 @@ export class ProviderService {
     } else {
       await this.providerRepository.update(id, { deletedAt: new Date() });
     }
+  }
+
+  async assignItemsToProvider(
+    providerId: number,
+    assignItemsDto: AssignItemsToProviderDto
+  ): Promise<void> {
+    await this.findById(providerId);
+
+    const itemIds = assignItemsDto.items.map((item) => item.itemId);
+
+    const existingRelations = await this.providerItemRepository.find({
+      where: {
+        provider: { id: providerId },
+        item: { id: In(itemIds) },
+      },
+      select: ['item'],
+    });
+
+    if (existingRelations.length > 0) {
+      const existingItemIds = existingRelations.map((rel) =>
+        typeof rel.item === 'object' ? rel.item.id : rel.item
+      );
+      throw new BadRequestException(
+        `La relación entre el proveedor y los siguientes items ya existe: ${existingItemIds.join(
+          ', '
+        )}`
+      );
+    }
+
+    const providerItems = assignItemsDto.items.map((item) => ({
+      provider: { id: providerId },
+      item: { id: item.itemId },
+      cost: item.cost,
+    }));
+
+    await this.providerItemRepository.save(providerItems);
+  }
+
+  async updateProviderItemCost(
+    providerId: number,
+    itemId: number,
+    updateCostDto: UpdateProviderItemCostDto
+  ): Promise<void> {
+    await this.findById(providerId);
+
+    const providerItem = await this.providerItemRepository.findOne({
+      where: {
+        provider: { id: providerId },
+        item: { id: itemId },
+      },
+      relations: ['provider', 'item'],
+    });
+
+    if (!providerItem) {
+      throw new NotFoundException('Provider-Item relationship not found');
+    }
+
+    await this.providerItemRepository.update(
+      { id: providerItem.id },
+      { cost: updateCostDto.cost }
+    );
+  }
+
+  async removeProviderItem(providerId: number, itemId: number): Promise<void> {
+    await this.findById(providerId);
+
+    const providerItem = await this.providerItemRepository.findOne({
+      where: {
+        provider: { id: providerId },
+        item: { id: itemId },
+      },
+    });
+
+    if (!providerItem) {
+      throw new NotFoundException('Provider-Item relationship not found');
+    }
+
+    await this.providerItemRepository.remove(providerItem);
   }
 }

@@ -27,7 +27,7 @@ const Page: FC = () => {
   });
 
   return (
-    <SectionContainer title={t('navigation.items')} error={error?.message}>
+    <SectionContainer title={t('navigation.items')} error={error}>
       <SearchAndCreate
         search={search}
         onSearchChange={setSearch}

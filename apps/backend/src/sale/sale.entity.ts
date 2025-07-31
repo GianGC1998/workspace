@@ -10,7 +10,7 @@ export class SaleEntity extends BaseTimeEntity {
       description: 'Total net value of sale',
     },
   })
-  totalNet: string;
+  totalNet: number;
 
   @ManyToOne(() => StoreEntity, (store) => store.sales)
   store: Relation<StoreEntity>;

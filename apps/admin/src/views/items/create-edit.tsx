@@ -2,14 +2,17 @@ import { ArrowLeftOutlined } from '@ant-design/icons';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { useNavigate, useParams } from '@tanstack/react-router';
 import { CreateUpdateItemDto } from '@workspace/api-types';
-import { Button, message } from 'antd';
+import { Button } from 'antd';
 import { FC } from 'react';
 import { MainLayout } from '../../components/main-layout';
 import SectionContainer from '../../components/main-layout/sectionContainer';
 import { useTranslation } from '../../i18n/hooks/useTranslation';
+import { useMessageContext } from '../../context/message';
 import { api } from '../../lib/api';
 import { ItemForm } from './form';
 import { Roles } from '@workspace/api-types';
+import { ApiAxiosError } from '../../common/types';
+import { useErrorHandler } from '../../hooks';
 
 interface CreateEditItemProps {
   isEdit?: boolean;
@@ -18,6 +21,8 @@ interface CreateEditItemProps {
 export const Page: FC<CreateEditItemProps> = ({ isEdit }) => {
   const { t } = useTranslation();
   const navigate = useNavigate();
+  const { messageApi } = useMessageContext();
+  const { handleDuplicateError } = useErrorHandler();
   // Corregido: obtener el parámetro 'id' desde la ruta correcta según si es edición o creación
   const { id } = useParams({
     from: isEdit ? '/datos/items/edit/$id' : '/datos/items/create',
@@ -36,15 +41,11 @@ export const Page: FC<CreateEditItemProps> = ({ isEdit }) => {
   const createMutation = useMutation({
     mutationFn: (data: CreateUpdateItemDto) => api.itemControllerCreate(data),
     onSuccess: () => {
-      message.success(t('items.itemCreated'));
+      messageApi.success(t('items.itemCreated'));
       navigate({ to: '/datos/items' });
     },
-    onError: (error: any) => {
-      if (error?.response?.data?.message?.includes('name')) {
-        message.error(t('items.itemNameExists'));
-      } else {
-        message.error(t('validation.generalError'));
-      }
+    onError: (error: ApiAxiosError) => {
+      handleDuplicateError(error, 'items');
     },
   });
 
@@ -53,15 +54,11 @@ export const Page: FC<CreateEditItemProps> = ({ isEdit }) => {
     mutationFn: ({ id, data }: { id: number; data: CreateUpdateItemDto }) =>
       api.itemControllerUpdate(id, data),
     onSuccess: () => {
-      message.success(t('items.itemUpdated'));
+      messageApi.success(t('items.itemUpdated'));
       navigate({ to: '/datos/items' });
     },
-    onError: (error: any) => {
-      if (error?.response?.data?.message?.includes('name')) {
-        message.error(t('items.itemNameExists'));
-      } else {
-        message.error(t('validation.generalError'));
-      }
+    onError: (error: ApiAxiosError) => {
+      handleDuplicateError(error, 'items');
     },
   });
 

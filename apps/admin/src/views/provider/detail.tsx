@@ -1,17 +1,24 @@
+import { ArrowLeftOutlined, PlusOutlined } from '@ant-design/icons';
+import { useMutation, useQuery } from '@tanstack/react-query';
+import { useNavigate, useParams } from '@tanstack/react-router';
+import { ItemEntity, ItemEntityResponseDto, Roles } from '@workspace/api-types';
+import { Button, Descriptions } from 'antd';
 import { FC, useState } from 'react';
-import { useParams, useNavigate } from '@tanstack/react-router';
-import { useQuery } from '@tanstack/react-query';
-import { api } from '../../lib/api';
+import { ApiAxiosError } from '../../common/types';
 import { MainLayout } from '../../components/main-layout';
 import SectionContainer from '../../components/main-layout/sectionContainer';
-import { Button, Descriptions } from 'antd';
-import { useTranslation } from '../../i18n/hooks/useTranslation';
-import { Roles } from '@workspace/api-types';
-import { ArrowLeftOutlined } from '@ant-design/icons';
-import DataTable from '../../components/table/dataTable';
-import { useColumns as useItemColumns } from '../items/columns';
+import { CustomModal } from '../../components/modal';
+import { useModal } from '../../components/modal/useModal';
 import { SearchAndCreate } from '../../components/search-and-create';
+import DataTable from '../../components/table/dataTable';
 import { useDebounce } from '../../hooks';
+import { useMessageContext } from '../../context/message';
+import { useTranslation } from '../../i18n/hooks/useTranslation';
+import { api } from '../../lib/api';
+import { AddItemToProviderForm } from './add-item-form';
+import { useProviderItemColumns } from './provider-item-columns';
+import { UpdateCostForm } from './update-cost-form';
+import { useErrorHandler } from '../../hooks';
 
 export const ProviderDetailView: FC = () => {
   const { t } = useTranslation();
@@ -19,6 +26,14 @@ export const ProviderDetailView: FC = () => {
   const { id } = useParams({ from: '/datos/provider/view/$id' });
   const [search, setSearch] = useState('');
   const [page, setPage] = useState(1);
+  const { messageApi } = useMessageContext();
+  const { handleError } = useErrorHandler();
+
+  const addItemModal = useModal();
+  const updateCostModal = useModal();
+  const [selectedItem, setSelectedItem] =
+    useState<ItemEntityResponseDto | null>(null);
+  const [selectedItemCost, setSelectedItemCost] = useState<number>(0);
 
   const debouncedSearch = useDebounce(search, 500);
   const {
@@ -50,7 +65,69 @@ export const ProviderDetailView: FC = () => {
     enabled: !!id,
   });
 
-  const itemColumns = useItemColumns();
+  const addItemMutation = useMutation({
+    mutationFn: (data: { itemId: number; cost: number }) =>
+      api.providerControllerAssignItemsToProvider(Number(id), {
+        items: [data],
+      }),
+    onSuccess: () => {
+      messageApi.success(t('providers.itemAddedSuccess'));
+      addItemModal.close();
+      refetch();
+    },
+    onError: (error: ApiAxiosError) => {
+      handleError(error);
+    },
+  });
+
+  const updateCostMutation = useMutation({
+    mutationFn: (data: { cost: number }) =>
+      api.providerControllerUpdateProviderItemCost(
+        Number(id),
+        Number(selectedItem?.id),
+        data
+      ),
+    onSuccess: () => {
+      messageApi.success(t('providers.costUpdatedSuccess'));
+      updateCostModal.close();
+      setSelectedItem(null);
+      refetch();
+    },
+    onError: (error: ApiAxiosError) => {
+      handleError(error);
+    },
+  });
+
+  const removeItemMutation = useMutation({
+    mutationFn: (item: ItemEntityResponseDto) =>
+      api.providerControllerRemoveProviderItem(Number(id), Number(item.id)),
+    onSuccess: () => {
+      messageApi.success(t('providers.itemRemovedSuccess'));
+      refetch();
+    },
+    onError: (error: ApiAxiosError) => {
+      handleError(error);
+    },
+  });
+
+  const handleAddItem = (data: { itemId: number; cost: number }) => {
+    addItemMutation.mutate(data);
+  };
+
+  const handleUpdateCost = (item: ItemEntityResponseDto) => {
+    setSelectedItem(item);
+    setSelectedItemCost(item.providerItems[0]?.cost || 0);
+    updateCostModal.open();
+  };
+
+  const handleRemoveItem = (item: ItemEntityResponseDto) => {
+    removeItemMutation.mutate(item);
+  };
+
+  const itemColumns = useProviderItemColumns({
+    onUpdateCost: handleUpdateCost,
+    onRemoveItem: handleRemoveItem,
+  });
 
   return (
     <MainLayout allowedRoles={[Roles.SUPERADMIN]}>
@@ -94,7 +171,14 @@ export const ProviderDetailView: FC = () => {
             loading={isLoadingItems}
             error={errorItems?.message}
           >
-            <div className="mb-4 flex justify-end">
+            <div className="mb-4 flex justify-between">
+              <Button
+                type="primary"
+                icon={<PlusOutlined />}
+                onClick={addItemModal.open}
+              >
+                {t('providers.addItem')}
+              </Button>
               <SearchAndCreate
                 search={search}
                 onSearchChange={setSearch}
@@ -115,6 +199,45 @@ export const ProviderDetailView: FC = () => {
             />
           </SectionContainer>
         </div>
+
+        <CustomModal
+          isOpen={addItemModal.isOpen}
+          title={t('providers.addItem')}
+          onClose={addItemModal.close}
+          size="medium"
+          footer={null}
+        >
+          <AddItemToProviderForm
+            providerId={Number(id)}
+            onSubmit={handleAddItem}
+            onCancel={addItemModal.close}
+            loading={addItemMutation.isPending}
+          />
+        </CustomModal>
+        <CustomModal
+          isOpen={updateCostModal.isOpen}
+          title={t('providers.updateCost')}
+          onClose={() => {
+            updateCostModal.close();
+            setSelectedItem(null);
+          }}
+          size="medium"
+          footer={null}
+        >
+          {selectedItem && (
+            <UpdateCostForm
+              item={selectedItem}
+              currentCost={selectedItemCost}
+              onSubmit={updateCostMutation.mutate}
+              onCancel={() => {
+                updateCostModal.close();
+                setSelectedItem(null);
+                setSelectedItemCost(0);
+              }}
+              loading={updateCostMutation.isPending}
+            />
+          )}
+        </CustomModal>
       </SectionContainer>
     </MainLayout>
   );

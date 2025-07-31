@@ -1,7 +1,6 @@
 import {
   Body,
   Controller,
-  Delete,
   Get,
   Param,
   Patch,
@@ -24,6 +23,7 @@ import {
   GetItemResponseDto,
   GetItemsQueryDto,
   GetItemsResponseDto,
+  ItemEntityResponseDto,
 } from './item.dto';
 import { ItemEntity } from './item.entity';
 import { ItemService } from './item.service';
@@ -40,9 +40,9 @@ export class ItemController {
   @ApiOkResponse({ type: GetItemsResponseDto })
   async findAll(
     @Query() query: GetItemsQueryDto
-  ): Promise<PaginationResponseDto<ItemEntity>> {
+  ): Promise<PaginationResponseDto<ItemEntityResponseDto>> {
     const { items, total } = await this.itemService.findAll(query);
-    return PaginationResponseDto.fromPlain<ItemEntity>({
+    return PaginationResponseDto.fromPlain<ItemEntityResponseDto>({
       data: items,
       total,
     });
@@ -79,5 +79,14 @@ export class ItemController {
   @ApiOkResponse({ type: Boolean })
   async deactivate(@Param('id') id: number): Promise<void> {
     await this.itemService.deactivate(Number(id));
+  }
+
+  @Get('unassigned/:providerId')
+  @ApiOperation({ summary: 'Get items not assigned to a provider' })
+  @ApiOkResponse({ type: [ItemEntityResponseDto] })
+  async findUnassignedToProvider(
+    @Param('providerId') providerId: number
+  ): Promise<ItemEntityResponseDto[]> {
+    return this.itemService.findUnassignedToProvider(Number(providerId));
   }
 }

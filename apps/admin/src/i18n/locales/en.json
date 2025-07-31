@@ -21,7 +21,8 @@
     "no": "No",
     "detail": "Detail",
     "archive": "Archive",
-    "activate": "Activate"
+    "activate": "Activate",
+    "add": "Add"
   },
   "auth": {
     "login": "Login",
@@ -128,7 +129,18 @@
     "providerPhonePlaceholder": "Enter provider phone",
     "providerContactNamePlaceholder": "Enter contact name",
     "documentTypeDNI": "DNI",
-    "documentTypeRUC": "RUC"
+    "documentTypeRUC": "RUC",
+    "providerItems": "Provider Items",
+    "addItem": "Add Item",
+    "updateCost": "Update Cost",
+    "itemCost": "Item Cost",
+    "itemCostPlaceholder": "Enter item cost",
+    "removeItemConfirm": "Are you sure you want to remove this item from the provider?",
+    "removeItemDescription": "This action cannot be undone.",
+    "itemAddedSuccess": "Item added successfully to provider",
+    "costUpdatedSuccess": "Cost updated successfully",
+    "itemRemovedSuccess": "Item removed successfully from provider",
+    "selectItemPlaceholder": "Select an item"
   },
   "reports": {
     "title": "Reports",

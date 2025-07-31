@@ -4,16 +4,41 @@
 
 @theme {
   --color-primary: #123549;
+  --color-error: #f5222d;
+  --color-warning: #faad14;
+  --color-success: #52c41a;
+  --color-info: #1890ff;
 }
 
 .form-input.has-error {
-  border-color: #f5222d;
+  border-color: var(--color-error);
 }
 
 .form-input.has-error .ant-select-selector {
-  border-color: #f5222d;
+  border-color: var(--color-error);
 }
 
 .input-error-feedback {
-  color: #f5222d;
+  color: var(--color-error);
+}
+
+/* Asegurar que los iconos de los mensajes mantengan sus colores originales */
+.ant-message-notice-content .anticon {
+  color: inherit !important;
+}
+
+.ant-message-notice-content .ant-message-success .anticon {
+  color: var(--color-success) !important;
+}
+
+.ant-message-notice-content .ant-message-error .anticon {
+  color: var(--color-error) !important;
+}
+
+.ant-message-notice-content .ant-message-warning .anticon {
+  color: var(--color-warning) !important;
+}
+
+.ant-message-notice-content .ant-message-info .anticon {
+  color: var(--color-info) !important;
 }

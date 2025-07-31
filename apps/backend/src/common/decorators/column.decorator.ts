@@ -1,12 +1,13 @@
 import {
   ApiProperty,
-  ApiPropertyOptions,
   ApiPropertyOptional,
+  ApiPropertyOptions,
 } from '@nestjs/swagger';
+import { Transform } from 'class-transformer';
 import {
   IsDate,
-  IsDecimal,
   IsNotEmpty,
+  IsNumber,
   IsOptional,
   IsString,
 } from 'class-validator';
@@ -40,7 +41,11 @@ export function StringOptionalColumn(options: ColumnDecoratorOptions = {}) {
 export function DecimalRequiredColumn(options: ColumnDecoratorOptions = {}) {
   return function (target: object, propertyKey: string) {
     ApiProperty(options.apiPropertyOptions ?? {})(target, propertyKey);
-    IsDecimal()(target, propertyKey);
+    IsNumber({ maxDecimalPlaces: 2 })(target, propertyKey);
+    Transform(({ value }) => {
+      if (value === null || value === undefined) return value;
+      return Number(value);
+    })(target, propertyKey);
     Column({
       type: 'decimal',
       ...(options.columnOptions ?? {}),
@@ -52,7 +57,11 @@ export function DecimalOptionalColumn(options: ColumnDecoratorOptions = {}) {
   return function (target: object, propertyKey: string) {
     ApiPropertyOptional(options.apiPropertyOptions ?? {})(target, propertyKey);
     IsOptional()(target, propertyKey);
-    IsDecimal()(target, propertyKey);
+    IsNumber({ maxDecimalPlaces: 2 })(target, propertyKey);
+    Transform(({ value }) => {
+      if (value === null || value === undefined) return value;
+      return Number(value);
+    })(target, propertyKey);
     Column({
       type: 'decimal',
       nullable: true,

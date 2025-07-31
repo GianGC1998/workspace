@@ -1,10 +1,11 @@
-import { Entity, ManyToOne, type Relation } from 'typeorm';
+import { Entity, ManyToOne, Unique, type Relation } from 'typeorm';
 import { ProviderEntity } from './provider.entity';
 import { ItemEntity } from '../../items/item.entity';
 import { BaseTimeEntity } from '../../common/entity/base.entity';
 import { DecimalRequiredColumn } from '../../common/decorators/column.decorator';
 
 @Entity('provider_items')
+@Unique('UQ_provider_item', ['provider', 'item'])
 export class ProviderItemEntity extends BaseTimeEntity {
   @ManyToOne(() => ProviderEntity, (provider) => provider.providerItems)
   provider: Relation<ProviderEntity>;

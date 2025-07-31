@@ -8,7 +8,11 @@ import { IsNull, Repository } from 'typeorm';
 import { getSkipAndTake } from '../common/dto/pagination.helper';
 import '../common/extensions/queryBuilder.extension';
 import { getCodeByNumber } from '../common/helpers/code.helper';
-import { CreateUpdateItemDto, GetItemsQueryDto } from './item.dto';
+import {
+  CreateUpdateItemDto,
+  GetItemsQueryDto,
+  ItemEntityResponseDto,
+} from './item.dto';
 import { ItemEntity } from './item.entity';
 import { ITEM_REPOSITORY_KEY } from './item.providers';
 import { CategoryService } from '../category/category.service';
@@ -22,7 +26,7 @@ export class ItemService {
   ) {}
 
   async findAll(query: GetItemsQueryDto): Promise<{
-    items: ItemEntity[];
+    items: ItemEntityResponseDto[];
     total: number;
   }> {
     const { search, sorting } = query;
@@ -129,5 +133,27 @@ export class ItemService {
     } else {
       await this.itemRepository.update(id, { deletedAt: new Date() });
     }
+  }
+
+  async findUnassignedToProvider(
+    providerId: number
+  ): Promise<ItemEntityResponseDto[]> {
+    const queryBuilder = this.itemRepository.createQueryBuilder('item');
+
+    // Obtener items que NO están asignados al proveedor
+    queryBuilder
+      .leftJoin(
+        'item.providerItems',
+        'providerItem',
+        'providerItem.providerId = :providerId AND providerItem.deletedAt IS NULL',
+        {
+          providerId,
+        }
+      )
+      .where('item.deletedAt IS NULL')
+      .andWhere('providerItem.id IS NULL');
+
+    const items = await queryBuilder.getMany();
+    return items;
   }
 }

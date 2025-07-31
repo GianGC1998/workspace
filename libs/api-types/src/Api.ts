@@ -10,6 +10,7 @@
  */
 
 import {
+  AssignItemsToProviderDto,
   AuthUserDto,
   CategoryControllerFindAllParams,
   CategoryEntity,
@@ -23,16 +24,19 @@ import {
   GetUsersQueryDto,
   ItemControllerFindAllParams,
   ItemEntity,
+  ItemEntityResponseDto,
   LoginDto,
   LoginResponseDto,
   PaginationResponseDtoCategoryEntity,
-  PaginationResponseDtoItemEntity,
+  PaginationResponseDtoItemEntityResponseDto,
   PaginationResponseDtoOmitTypeClass,
   PaginationResponseDtoUserEntity,
   ProviderControllerFindAllParams,
   ProviderEntity,
+  ProviderItemEntity,
   ReportControllerGetAverageSaleByStoreParams,
   ReportControllerGetSalesByStoreParams,
+  UpdateProviderItemCostDto,
 } from './data-contracts';
 import { ContentType, HttpClient, RequestParams } from './http-client';
 
@@ -264,7 +268,7 @@ export class Api<SecurityDataType = unknown> extends HttpClient<SecurityDataType
    * @secure
    */
   itemControllerFindAll = (query: ItemControllerFindAllParams, params: RequestParams = {}) =>
-    this.request<PaginationResponseDtoItemEntity, any>({
+    this.request<PaginationResponseDtoItemEntityResponseDto, any>({
       path: `/api/items/paginated`,
       method: 'GET',
       query: query,
@@ -341,6 +345,23 @@ export class Api<SecurityDataType = unknown> extends HttpClient<SecurityDataType
       body: data,
       secure: true,
       type: ContentType.Json,
+      format: 'json',
+      ...params,
+    });
+  /**
+   * No description
+   *
+   * @tags items
+   * @name ItemControllerFindUnassignedToProvider
+   * @summary Get items not assigned to a provider
+   * @request GET:/api/items/unassigned/{providerId}
+   * @secure
+   */
+  itemControllerFindUnassignedToProvider = (providerId: number, params: RequestParams = {}) =>
+    this.request<ItemEntityResponseDto[], any>({
+      path: `/api/items/unassigned/${providerId}`,
+      method: 'GET',
+      secure: true,
       format: 'json',
       ...params,
     });
@@ -431,6 +452,66 @@ export class Api<SecurityDataType = unknown> extends HttpClient<SecurityDataType
       body: data,
       secure: true,
       type: ContentType.Json,
+      format: 'json',
+      ...params,
+    });
+  /**
+   * No description
+   *
+   * @tags providers
+   * @name ProviderControllerAssignItemsToProvider
+   * @summary Assign items to a provider
+   * @request POST:/api/providers/{id}/assign-items
+   * @secure
+   */
+  providerControllerAssignItemsToProvider = (id: number, data: AssignItemsToProviderDto, params: RequestParams = {}) =>
+    this.request<ProviderEntity, any>({
+      path: `/api/providers/${id}/assign-items`,
+      method: 'POST',
+      body: data,
+      secure: true,
+      type: ContentType.Json,
+      format: 'json',
+      ...params,
+    });
+  /**
+   * No description
+   *
+   * @tags providers
+   * @name ProviderControllerUpdateProviderItemCost
+   * @summary Update provider item cost
+   * @request PATCH:/api/providers/{providerId}/items/{itemId}/cost
+   * @secure
+   */
+  providerControllerUpdateProviderItemCost = (
+    providerId: number,
+    itemId: number,
+    data: UpdateProviderItemCostDto,
+    params: RequestParams = {},
+  ) =>
+    this.request<ProviderItemEntity, any>({
+      path: `/api/providers/${providerId}/items/${itemId}/cost`,
+      method: 'PATCH',
+      body: data,
+      secure: true,
+      type: ContentType.Json,
+      format: 'json',
+      ...params,
+    });
+  /**
+   * No description
+   *
+   * @tags providers
+   * @name ProviderControllerRemoveProviderItem
+   * @summary Remove provider item relationship
+   * @request DELETE:/api/providers/{providerId}/items/{itemId}
+   * @secure
+   */
+  providerControllerRemoveProviderItem = (providerId: number, itemId: number, params: RequestParams = {}) =>
+    this.request<boolean, any>({
+      path: `/api/providers/${providerId}/items/${itemId}`,
+      method: 'DELETE',
+      secure: true,
       format: 'json',
       ...params,
     });

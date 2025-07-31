@@ -10,7 +10,7 @@ interface IOwnProps {
   loading?: boolean;
   loadingComponent?: React.ReactNode;
   content?: () => React.ReactNode;
-  error?: string;
+  error?: any;
 }
 
 type IProps = IOwnProps;
@@ -24,7 +24,9 @@ const SectionContainer: FC<PropsWithChildren<IProps>> = (props) => {
       return (
         <Alert
           message={t('common.error')}
-          description={props.error}
+          description={
+            props.error?.response?.data?.message ?? props.error?.message
+          }
           type="error"
           showIcon
         />

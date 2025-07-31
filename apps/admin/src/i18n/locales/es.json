@@ -21,7 +21,8 @@
     "no": "No",
     "detail": "Detalle",
     "archive": "Archivar",
-    "activate": "Activar"
+    "activate": "Activar",
+    "add": "Agregar"
   },
   "auth": {
     "login": "Iniciar Sesión",
@@ -129,7 +130,17 @@
     "providerContactNamePlaceholder": "Ingrese el nombre de contacto",
     "documentTypeDNI": "DNI",
     "documentTypeRUC": "RUC",
-    "providerItems": "Artículos del Proveedor"
+    "providerItems": "Artículos del Proveedor",
+    "addItem": "Agregar Artículo",
+    "updateCost": "Actualizar Costo",
+    "itemCost": "Costo del Artículo",
+    "itemCostPlaceholder": "Ingrese el costo del artículo",
+    "removeItemConfirm": "¿Está seguro de que desea eliminar este artículo del proveedor?",
+    "removeItemDescription": "Esta acción no se puede deshacer.",
+    "itemAddedSuccess": "Artículo agregado exitosamente al proveedor",
+    "costUpdatedSuccess": "Costo actualizado exitosamente",
+    "itemRemovedSuccess": "Artículo eliminado exitosamente del proveedor",
+    "selectItemPlaceholder": "Seleccione un artículo"
   },
   "reports": {
     "title": "Reportes",

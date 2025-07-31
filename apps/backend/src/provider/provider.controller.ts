@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  Delete,
   Get,
   Param,
   Patch,
@@ -22,8 +23,11 @@ import {
   CreateUpdateProviderDto,
   GetProvidersQueryDto,
   GetProvidersResponseDto,
+  AssignItemsToProviderDto,
+  UpdateProviderItemCostDto,
 } from './provider.dto';
 import { ProviderEntity } from './entities/provider.entity';
+import { ProviderItemEntity } from './entities/provider-item.entity';
 import { ProviderService } from './provider.service';
 
 @ApiCookieAuth(COOKIE_KEY)
@@ -77,5 +81,46 @@ export class ProviderController {
   @ApiOkResponse({ type: Boolean })
   async deactivate(@Param('id') id: number): Promise<void> {
     await this.providerService.deactivate(Number(id));
+  }
+
+  @Post(':id/assign-items')
+  @ApiOperation({ summary: 'Assign items to a provider' })
+  @ApiOkResponse({ type: ProviderEntity })
+  async assignItemsToProvider(
+    @Param('id') id: number,
+    @Body() assignItemsDto: AssignItemsToProviderDto
+  ): Promise<void> {
+    return this.providerService.assignItemsToProvider(
+      Number(id),
+      assignItemsDto
+    );
+  }
+
+  @Patch(':providerId/items/:itemId/cost')
+  @ApiOperation({ summary: 'Update provider item cost' })
+  @ApiOkResponse({ type: ProviderItemEntity })
+  async updateProviderItemCost(
+    @Param('providerId') providerId: number,
+    @Param('itemId') itemId: number,
+    @Body() updateCostDto: UpdateProviderItemCostDto
+  ): Promise<void> {
+    return this.providerService.updateProviderItemCost(
+      Number(providerId),
+      Number(itemId),
+      updateCostDto
+    );
+  }
+
+  @Delete(':providerId/items/:itemId')
+  @ApiOperation({ summary: 'Remove provider item relationship' })
+  @ApiOkResponse({ type: Boolean })
+  async removeProviderItem(
+    @Param('providerId') providerId: number,
+    @Param('itemId') itemId: number
+  ): Promise<void> {
+    await this.providerService.removeProviderItem(
+      Number(providerId),
+      Number(itemId)
+    );
   }
 }

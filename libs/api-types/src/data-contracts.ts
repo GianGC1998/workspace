@@ -140,7 +140,22 @@ export enum ItemType {
   SUMINISTRO = 'SUMINISTRO',
 }
 
-export interface ItemEntity {
+export interface ProviderItemEntity {
+  id: number;
+  /** @format date-time */
+  createdAt: string;
+  /** @format date-time */
+  updatedAt: string;
+  /** @format date-time */
+  deletedAt: string;
+  /**
+   * Precio del item por este proveedor
+   * @example 25.5
+   */
+  cost: number;
+}
+
+export interface ItemEntityResponseDto {
   id: number;
   /** @format date-time */
   createdAt: string;
@@ -152,10 +167,12 @@ export interface ItemEntity {
   name: string;
   description?: string;
   itemType: ItemType;
+  /** The provider items of the item */
+  providerItems: ProviderItemEntity[];
 }
 
-export interface PaginationResponseDtoItemEntity {
-  data: ItemEntity[];
+export interface PaginationResponseDtoItemEntityResponseDto {
+  data: ItemEntityResponseDto[];
   total: number;
 }
 
@@ -184,6 +201,20 @@ export interface CreateUpdateItemDto {
    * @example 1
    */
   categoryId: number;
+}
+
+export interface ItemEntity {
+  id: number;
+  /** @format date-time */
+  createdAt: string;
+  /** @format date-time */
+  updatedAt: string;
+  /** @format date-time */
+  deletedAt: string;
+  code: string;
+  name: string;
+  description?: string;
+  itemType: ItemType;
 }
 
 export enum DocumentType {
@@ -228,7 +259,7 @@ export interface ProviderEntity {
   documentType: DocumentType;
 }
 
-export interface CreateUpdateProviderItemDto {
+export interface CreateProviderItemDto {
   /**
    * Precio del item por este proveedor
    * @example 25.5
@@ -248,7 +279,23 @@ export interface CreateUpdateProviderDto {
   contactName: string;
   documentType: DocumentType;
   /** Items del proveedor */
-  items: CreateUpdateProviderItemDto[];
+  items: CreateProviderItemDto[];
+}
+
+export interface AssignItemsToProviderDto {
+  /**
+   * Items a asignar al proveedor
+   * @example [{"itemId":1,"cost":25.5},{"itemId":2,"cost":30}]
+   */
+  items: CreateProviderItemDto[];
+}
+
+export interface UpdateProviderItemCostDto {
+  /**
+   * Nuevo costo del item
+   * @example 35.75
+   */
+  cost: number;
 }
 
 export interface ReportControllerGetAverageSaleByStoreParams {

@@ -10,6 +10,7 @@ import { PaginationQueryDto } from '../common/dto/pagination.dto';
 import { IsNumber, IsOptional, ValidateNested } from 'class-validator';
 import { CategoryEntity } from '../category/category.entity';
 import { Type } from 'class-transformer';
+import { ProviderItemEntity } from '../provider/entities/provider-item.entity';
 
 export class GetItemsQueryDto extends PaginationQueryDto {
   @ApiPropertyOptional({
@@ -33,7 +34,21 @@ export class CreateUpdateItemDto extends PickType(ItemEntity, [
   categoryId: number;
 }
 
-export const GetItemsResponseDto = createPaginationResponseDto(ItemEntity);
+export class ItemEntityResponseDto extends OmitType(ItemEntity, [
+  'providerItems',
+]) {
+  @ApiProperty({
+    description: 'The provider items of the item',
+    type: [ProviderItemEntity],
+  })
+  @ValidateNested()
+  @Type(() => ProviderItemEntity)
+  providerItems: ProviderItemEntity[];
+}
+
+export const GetItemsResponseDto = createPaginationResponseDto(
+  ItemEntityResponseDto
+);
 
 export class GetItemResponseDto extends OmitType(ItemEntity, ['category']) {
   @ApiProperty({

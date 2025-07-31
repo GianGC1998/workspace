@@ -8,7 +8,7 @@ import { Type } from 'class-transformer';
 
 export class GetProvidersQueryDto extends PaginationQueryDto {}
 
-export class CreateUpdateProviderItemDto extends PickType(ProviderItemEntity, [
+export class CreateProviderItemDto extends PickType(ProviderItemEntity, [
   'cost',
 ]) {
   @ApiProperty({
@@ -17,6 +17,36 @@ export class CreateUpdateProviderItemDto extends PickType(ProviderItemEntity, [
   })
   @IsNumber()
   itemId: number;
+}
+
+export class AssignItemsToProviderDto {
+  @ApiProperty({
+    description: 'Items a asignar al proveedor',
+    type: [CreateProviderItemDto],
+    example: [
+      {
+        itemId: 1,
+        cost: 25.5,
+      },
+      {
+        itemId: 2,
+        cost: 30.0,
+      },
+    ],
+  })
+  @IsArray()
+  @ValidateNested({ each: true })
+  @Type(() => CreateProviderItemDto)
+  items: CreateProviderItemDto[];
+}
+
+export class UpdateProviderItemCostDto {
+  @ApiProperty({
+    description: 'Nuevo costo del item',
+    example: 35.75,
+  })
+  @IsNumber()
+  cost: number;
 }
 
 export class CreateUpdateProviderDto extends PickType(ProviderEntity, [
@@ -28,12 +58,12 @@ export class CreateUpdateProviderDto extends PickType(ProviderEntity, [
 ]) {
   @ApiProperty({
     description: 'Items del proveedor',
-    type: [CreateUpdateProviderItemDto],
+    type: [CreateProviderItemDto],
   })
   @IsArray()
   @ValidateNested({ each: true })
-  @Type(() => CreateUpdateProviderItemDto)
-  items: CreateUpdateProviderItemDto[];
+  @Type(() => CreateProviderItemDto)
+  items: CreateProviderItemDto[];
 }
 
 export const GetProvidersResponseDto = createPaginationResponseDto(

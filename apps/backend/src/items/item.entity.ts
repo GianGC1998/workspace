@@ -5,11 +5,8 @@ import {
   StringRequiredColumn,
 } from '../common/decorators/column.decorator';
 import { BaseTimeEntity } from '../common/entity/base.entity';
-import { ItemType } from './item.enum';
 import { ProviderItemEntity } from '../provider/entities/provider-item.entity';
-import { Type } from 'class-transformer';
-import { ValidateNested } from 'class-validator';
-import { ApiProperty } from '@nestjs/swagger';
+import { ItemType } from './item.enum';
 
 @Entity('items')
 export class ItemEntity extends BaseTimeEntity {

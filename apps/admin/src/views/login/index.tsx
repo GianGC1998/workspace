@@ -10,6 +10,8 @@ import { useMutation } from '@tanstack/react-query';
 import { LoginDto, LoginResponseDto } from '@workspace/api-types';
 import { useAuth } from '../../context/auth';
 import { Logo } from '../../components/logo/Logo';
+import { ApiAxiosError } from '../../common/types';
+import { useErrorHandler } from '../../hooks';
 
 type LoginForm = {
   email: string;
@@ -23,12 +25,13 @@ export const Login: FC = () => {
   const navigate = useNavigate();
   const { user, setUser } = useAuth();
   const { t } = useTranslation();
+  const { handleError } = useErrorHandler();
 
   const {
     isPending,
     error,
     mutate: login,
-  } = useMutation<LoginResponseDto, Error, LoginDto>({
+  } = useMutation<LoginResponseDto, ApiAxiosError, LoginDto>({
     mutationFn: (params) =>
       api.authControllerLogin(params).then((res) => res.data),
     onSuccess: (data) => {
@@ -36,7 +39,7 @@ export const Login: FC = () => {
       navigate({ to: '/' });
     },
     onError: (error) => {
-      console.log(error);
+      handleError(error, t('auth.invalidCredentials'));
     },
   });
 

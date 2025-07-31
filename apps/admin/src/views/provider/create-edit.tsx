@@ -2,14 +2,17 @@ import { ArrowLeftOutlined } from '@ant-design/icons';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { useNavigate, useParams } from '@tanstack/react-router';
 import { CreateUpdateProviderDto } from '@workspace/api-types';
-import { Button, message } from 'antd';
+import { Button } from 'antd';
 import { FC } from 'react';
 import { MainLayout } from '../../components/main-layout';
 import SectionContainer from '../../components/main-layout/sectionContainer';
 import { useTranslation } from '../../i18n/hooks/useTranslation';
+import { useMessageContext } from '../../context/message';
 import { api } from '../../lib/api';
 import { ProviderForm } from './form';
 import { Roles } from '@workspace/api-types';
+import { ApiAxiosError } from '../../common/types';
+import { useErrorHandler } from '../../hooks';
 
 interface CreateEditProviderProps {
   isEdit?: boolean;
@@ -18,6 +21,8 @@ interface CreateEditProviderProps {
 export const Page: FC<CreateEditProviderProps> = ({ isEdit }) => {
   const { t } = useTranslation();
   const navigate = useNavigate();
+  const { messageApi } = useMessageContext();
+  const { handleError } = useErrorHandler();
   const { id } = useParams({
     from: isEdit ? '/datos/provider/edit/$id' : '/datos/provider/create',
   });
@@ -36,15 +41,11 @@ export const Page: FC<CreateEditProviderProps> = ({ isEdit }) => {
     mutationFn: (data: CreateUpdateProviderDto) =>
       api.providerControllerCreate(data),
     onSuccess: () => {
-      message.success(t('providers.providerCreated'));
+      messageApi.success(t('providers.providerCreated'));
       navigate({ to: '/datos/provider' });
     },
-    onError: (error: any) => {
-      if (error?.response?.data?.message?.includes('name')) {
-        message.error(t('providers.providerNameExists'));
-      } else {
-        message.error(t('validation.generalError'));
-      }
+    onError: (error: ApiAxiosError) => {
+      handleError(error);
     },
   });
 
@@ -53,15 +54,11 @@ export const Page: FC<CreateEditProviderProps> = ({ isEdit }) => {
     mutationFn: ({ id, data }: { id: number; data: CreateUpdateProviderDto }) =>
       api.providerControllerUpdate(id, data),
     onSuccess: () => {
-      message.success(t('providers.providerUpdated'));
+      messageApi.success(t('providers.providerUpdated'));
       navigate({ to: '/datos/provider' });
     },
-    onError: (error: any) => {
-      if (error?.response?.data?.message?.includes('name')) {
-        message.error(t('providers.providerNameExists'));
-      } else {
-        message.error(t('validation.generalError'));
-      }
+    onError: (error: ApiAxiosError) => {
+      handleError(error);
     },
   });
 
