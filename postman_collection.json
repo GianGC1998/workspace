@@ -1,0 +1,668 @@
+{
+  "info": {
+    "name": "API Collection",
+    "description": "Collection basada en libs/api-types - Todos los endpoints disponibles",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:3000",
+      "type": "string"
+    },
+    {
+      "key": "token",
+      "value": "",
+      "type": "string"
+    }
+  ],
+  "auth": {
+    "type": "bearer",
+    "bearer": [
+      {
+        "key": "token",
+        "value": "{{token}}",
+        "type": "string"
+      }
+    ]
+  },
+  "item": [
+    {
+      "name": "Auth",
+      "item": [
+        {
+          "name": "Login",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "// Extraer el token de la respuesta del login",
+                  "if (pm.response.code === 200) {",
+                  "    const response = pm.response.json();",
+                  "    ",
+                  "    // Buscar el token en las cookies de la respuesta",
+                  "    const cookies = pm.response.headers.get('Set-Cookie');",
+                  "    if (cookies) {",
+                  "        const tokenMatch = cookies.match(/hairhands_session=([^;]+)/);",
+                  "        if (tokenMatch) {",
+                  "            pm.collectionVariables.set('token', tokenMatch[1]);",
+                  "            console.log('Token guardado:', tokenMatch[1]);",
+                  "        }",
+                  "    }",
+                  "    ",
+                  "    // También intentar extraer de la respuesta JSON si existe",
+                  "    if (response && response.accessToken) {",
+                  "        pm.collectionVariables.set('token', response.accessToken);",
+                  "        console.log('Token guardado desde JSON:', response.accessToken);",
+                  "    }",
+                  "    ",
+                  "    console.log('Login exitoso - Token actualizado');",
+                  "} else {",
+                  "    console.log('Error en login:', pm.response.status);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"user@example.com\",\n  \"password\": \"password123\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/login",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "auth", "login"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Logout",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "// Limpiar el token después del logout",
+                  "if (pm.response.code === 200) {",
+                  "    pm.collectionVariables.set('token', '');",
+                  "    console.log('Token limpiado después del logout');",
+                  "} else {",
+                  "    console.log('Error en logout:', pm.response.status);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/logout",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "auth", "logout"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Current User",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "// Verificar si la respuesta fue exitosa",
+                  "if (pm.response.code === 200) {",
+                  "    const user = pm.response.json();",
+                  "    console.log('Usuario actual:', user.name, '(', user.email, ')');",
+                  "    console.log('Rol:', user.role.name);",
+                  "} else if (pm.response.code === 401) {",
+                  "    console.log('Token inválido o expirado - Hacer login nuevamente');",
+                  "    pm.collectionVariables.set('token', '');",
+                  "} else {",
+                  "    console.log('Error al obtener usuario:', pm.response.status);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/me",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "auth", "me"]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Users",
+      "item": [
+        {
+          "name": "Get Users (Paginated)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"search\": \"\",\n  \"page\": 1,\n  \"limit\": 20,\n  \"sorting\": {\n    \"key\": \"name\",\n    \"order\": \"ASC\"\n  },\n  \"storeId\": 1\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/users/paginated",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "users", "paginated"]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Reports",
+      "item": [
+        {
+          "name": "Get Average Sale by Store",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/reports/dashboard/average-sale-by-store?startDate=2025-01-01T00:00:00&endDate=2025-01-31T23:59:59&stores=1,2,3",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "reports", "dashboard", "average-sale-by-store"],
+              "query": [
+                {
+                  "key": "startDate",
+                  "value": "2025-01-01T00:00:00"
+                },
+                {
+                  "key": "endDate",
+                  "value": "2025-01-31T23:59:59"
+                },
+                {
+                  "key": "stores",
+                  "value": "1,2,3"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Sales by Store",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/reports/dashboard/sales-by-store?startDate=2025-01-01T00:00:00&endDate=2025-01-31T23:59:59&stores=1,2,3&range=month",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "reports", "dashboard", "sales-by-store"],
+              "query": [
+                {
+                  "key": "startDate",
+                  "value": "2025-01-01T00:00:00"
+                },
+                {
+                  "key": "endDate",
+                  "value": "2025-01-31T23:59:59"
+                },
+                {
+                  "key": "stores",
+                  "value": "1,2,3"
+                },
+                {
+                  "key": "range",
+                  "value": "month"
+                }
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Stores",
+      "item": [
+        {
+          "name": "Get Stores by User",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/stores/user",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "stores", "user"]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Categories",
+      "item": [
+        {
+          "name": "Get All Categories (Paginated)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/categories/paginated?search=&page=1&limit=20&sorting[key]=name&sorting[order]=ASC",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "categories", "paginated"],
+              "query": [
+                {
+                  "key": "search",
+                  "value": ""
+                },
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "limit",
+                  "value": "20"
+                },
+                {
+                  "key": "sorting[key]",
+                  "value": "name"
+                },
+                {
+                  "key": "sorting[order]",
+                  "value": "ASC"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Category by ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/categories/1",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "categories", "1"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Create Category",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Nueva Categoría\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/categories",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "categories"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Update Category",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Categoría Actualizada\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/categories/1",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "categories", "1"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Deactivate Category",
+          "request": {
+            "method": "PATCH",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/categories/1",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "categories", "1"]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Items",
+      "item": [
+        {
+          "name": "Get All Items (Paginated)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/items/paginated?search=&page=1&limit=20&sorting[key]=name&sorting[order]=ASC&providerId=1",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "items", "paginated"],
+              "query": [
+                {
+                  "key": "search",
+                  "value": ""
+                },
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "limit",
+                  "value": "20"
+                },
+                {
+                  "key": "sorting[key]",
+                  "value": "name"
+                },
+                {
+                  "key": "sorting[order]",
+                  "value": "ASC"
+                },
+                {
+                  "key": "providerId",
+                  "value": "1"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Item by ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/items/1",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "items", "1"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Create Item",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Nuevo Item\",\n  \"description\": \"Descripción del item\",\n  \"itemType\": \"PRODUCTO\",\n  \"categoryId\": 1\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/items",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "items"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Update Item",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Item Actualizado\",\n  \"description\": \"Descripción actualizada\",\n  \"itemType\": \"PRODUCTO\",\n  \"categoryId\": 1\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/items/1",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "items", "1"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Deactivate Item",
+          "request": {
+            "method": "PATCH",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/items/1",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "items", "1"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Unassigned Items to Provider",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/items/unassigned/1",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "items", "unassigned", "1"]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Providers",
+      "item": [
+        {
+          "name": "Get All Providers (Paginated)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/providers/paginated?search=&page=1&limit=20&sorting[key]=name&sorting[order]=ASC",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "providers", "paginated"],
+              "query": [
+                {
+                  "key": "search",
+                  "value": ""
+                },
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "limit",
+                  "value": "20"
+                },
+                {
+                  "key": "sorting[key]",
+                  "value": "name"
+                },
+                {
+                  "key": "sorting[order]",
+                  "value": "ASC"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Provider by ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/providers/1",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "providers", "1"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Create Provider",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Nuevo Proveedor\",\n  \"document\": \"12345678\",\n  \"phone\": \"+1234567890\",\n  \"contactName\": \"Juan Pérez\",\n  \"documentType\": \"DNI\",\n  \"items\": [\n    {\n      \"itemId\": 1,\n      \"cost\": 25.5\n    },\n    {\n      \"itemId\": 2,\n      \"cost\": 30.0\n    }\n  ]\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/providers",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "providers"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Update Provider",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Proveedor Actualizado\",\n  \"document\": \"87654321\",\n  \"phone\": \"+0987654321\",\n  \"contactName\": \"María García\",\n  \"documentType\": \"DNI\",\n  \"items\": [\n    {\n      \"itemId\": 1,\n      \"cost\": 28.0\n    },\n    {\n      \"itemId\": 3,\n      \"cost\": 35.0\n    }\n  ]\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/providers/1",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "providers", "1"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Deactivate Provider",
+          "request": {
+            "method": "PATCH",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/providers/1",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "providers", "1"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Assign Items to Provider",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"items\": [\n    {\n      \"itemId\": 1,\n      \"cost\": 25.5\n    },\n    {\n      \"itemId\": 2,\n      \"cost\": 30.0\n    }\n  ]\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/providers/1/assign-items",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "providers", "1", "assign-items"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Update Provider Item Cost",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"cost\": 35.75\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/providers/1/items/1/cost",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "providers", "1", "items", "1", "cost"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Remove Provider Item",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/providers/1/items/1",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "providers", "1", "items", "1"]
+            }
+          },
+          "response": []
+        }
+      ]
+    }
+  ]
+}

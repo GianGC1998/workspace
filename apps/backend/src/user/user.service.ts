@@ -17,7 +17,7 @@ export class UserService {
     users: UserEntity[];
     total: number;
   }> {
-    const { search, sorting, storeId } = query;
+    const { search, sorting } = query;
     const { skip, take } = getSkipAndTake(query);
     const queryBuilder = this.userRepository.createQueryBuilder('user');
 
@@ -25,13 +25,14 @@ export class UserService {
       queryBuilder.searchInStringFields(search, ['name', 'dni', 'phone']);
     }
 
-    if (storeId) {
-      if (search) {
-        queryBuilder.andWhere('user.storeId = :storeId', { storeId });
-      } else {
-        queryBuilder.where('user.storeId = :storeId', { storeId });
-      }
-    }
+    // TODO: Implementar la relación con la tienda
+    // if (storeId) {
+    //   if (search) {
+    //     queryBuilder.andWhere('user.storeId = :storeId', { storeId });
+    //   } else {
+    //     queryBuilder.where('user.storeId = :storeId', { storeId });
+    //   }
+    // }
 
     const [users, total] = await queryBuilder
       .skip(skip)
